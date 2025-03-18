@@ -28,7 +28,7 @@ const UserSchema = new mongoose.Schema({
 
 // Creation du Schema de validation : Book
 const BookSchema = new mongoose.Schema({
-    userId: {type: Number, required: true},
+    userId: {type: String, required: false},
     title: {type: String, required: true},
     author: {type: String, required: true},
     imageUrl: String,
@@ -36,7 +36,7 @@ const BookSchema = new mongoose.Schema({
     genre: String,
     ratings: [
         {
-            userId: Number,
+            userId: String,
             grade: Number
         }
     ],
@@ -45,49 +45,37 @@ const BookSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model("User", UserSchema);
+const Book = mongoose.model("Book", BookSchema);
 
-// Api pour recuperer tous les users de la base de donnees MongoDB
-app.get("/api/auth/users", async (req, res) => {
-  try {
-    const users = await User.find();
-    console.log(users);
-    return res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: "Erreur serveur" });
-  }
-});
-
+//USERS
 
 app.post("/api/auth/signup", async (req, res) => {
-    try {
-        const { email, password } = req.body;
+  try {
+      const { email, password } = req.body;
 
-        // Vérifier si l'utilisateur existe déjà
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ error: "L'utilisateur existe déjà" });
-        }
+      // Vérifier si l'utilisateur existe déjà
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+          return res.status(400).json({ error: "L'utilisateur existe déjà" });
+      }
 
-        // Hasher le mot de passe avant de l'enregistrer
-        const hashedPassword = await bcrypt.hash(password, 10);
+      // Hasher le mot de passe avant de l'enregistrer
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Créer le nouvel utilisateur
-        const newUser = new User({
-            email,
-            password: hashedPassword
-        });
+      // Créer le nouvel utilisateur
+      const newUser = new User({
+          email,
+          password: hashedPassword
+      });
 
-        await newUser.save();
-        res.status(201).json({ message: "Utilisateur créé avec succès" });
+      await newUser.save();
+      res.status(201).json({ message: "Utilisateur créé avec succès" });
 
-    } catch (error) {
-        console.error("Erreur lors de l'ajout de l'utilisateur:", error);
-        res.status(500).json({ error: "Erreur serveur" });
-    }
+  } catch (error) {
+      console.error("Erreur lors de l'ajout de l'utilisateur:", error);
+      res.status(500).json({ error: "Erreur serveur" });
+  }
 });
-
-
-const Book = mongoose.model("Book", BookSchema);
 
 
 app.post("/api/auth/login", async (req,res)=>{
@@ -122,3 +110,60 @@ app.post("/api/auth/login", async (req,res)=>{
   }
 
 });
+
+app.get("/api/users", async (req, res) => {
+  try {
+    const users = await User.find();
+    return res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+
+
+// Books
+
+
+// Api pour recuperer tous les livres de la base de donnees MongoDB
+app.get("/api/books", async (req, res) => {
+  try {
+    const books = await Book.find();
+    return res.json(books);
+  } catch (error) {
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+
+app.post("/api/books", async (req, res) => {
+
+  try {
+
+    const { title, author, year, genre, grade } = req.body;
+
+    console.log(req.body); // mon Body ici est vide !!
+
+    const imageUrl = `${req.protocol}://${req.get('host')}/images/${req.body.imageUrl}`;
+
+    // Création du livre
+    const book = new Book({
+      title,
+      author,
+      imageUrl,
+      year,
+      genre,
+      ratings: [{ grade }],
+      averageRating: grade,
+    });
+
+    await book.save();
+    
+    return res.status(201).json(book);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
