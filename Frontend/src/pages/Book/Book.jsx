@@ -23,6 +23,7 @@ function Book() {
   useEffect(() => {
     async function getItem() {
       const data = await getBook(params.id);
+      console.log(data);
       if (data) {
         setBook(data);
       }
@@ -61,7 +62,7 @@ function Book() {
     }
   };
 
-  const loadingContent = (<h1>Chargement ...</h1>);
+  const loadingContent = (<h1>Chargement ... </h1>);
 
   const bookContent = !loading && !book.delete ? (
     <div>

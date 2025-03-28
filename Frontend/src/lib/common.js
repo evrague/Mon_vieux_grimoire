@@ -71,12 +71,14 @@ export async function getBestRatedBooks() {
       method: 'GET',
       url: `${API_ROUTES.BEST_RATED}`,
     });
-    return formatBooks(response.data);
+    const books = formatBooks(response.data);
+    return books;
   } catch (e) {
     console.error(e);
     return [];
   }
 }
+
 export async function deleteBook(id) {
   try {
     await axios.delete(`${API_ROUTES.BOOKS}/${id}`, {
@@ -138,6 +140,7 @@ export async function addBook(data) {
       data: bodyFormData,
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'multipart/form-data',
       },
     });
   } catch (err) {

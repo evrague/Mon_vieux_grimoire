@@ -26,6 +26,7 @@ export function useBestRatedBooks() {
   useEffect(() => {
     async function getRatedBooks() {
       const books = await getBestRatedBooks();
+      console.log('la valeur de books de lapi bestrated : ', books);
       setBestRatedBooks(books);
     }
     getRatedBooks();

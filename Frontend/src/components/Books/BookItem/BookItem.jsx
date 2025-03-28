@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { displayStars } from '../../../lib/functions';
 import styles from './BookItem.module.css';
+// import Logo from '../../../../backend/images/test.jpg';
 
 function BookItem({ book, size }) {
   let title;
