@@ -80,7 +80,7 @@ app.post("/api/auth/signup", async (req, res) => {
 
   } catch (error) {
       console.error("Erreur lors de l'ajout de l'utilisateur:", error);
-      res.status(500).json({ error: "Erreur serveur" });
+      res.status(400).json({ error: "Erreur signup" });
   }
 });
 
@@ -113,7 +113,7 @@ app.post("/api/auth/login", async (req,res)=>{
     res.json({token, userId:user._id});
     
   } catch (error) {
-    res.status(500).json({error:"erreur du serveur de connection"});
+    res.status(400).json({error:"erreur du serveur de connection"});
   }
 
 });
@@ -123,7 +123,7 @@ app.get("/api/users", async (req, res) => {
     const users = await User.find();
     return res.json(users);
   } catch (error) {
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(400).json({ error: "Erreur user" });
   }
 });
 
@@ -135,7 +135,7 @@ app.get("/api/books", async (req, res) => {
     const books = await Book.find();
     return res.json(books);
   } catch (error) {
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(400).json({ error: "Erreur books" });
   }
 });
 
@@ -183,9 +183,23 @@ app.post("/api/books", authMiddleware, upload.single("image"), async (req, res) 
 
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Erreur serveur" });
+    return res.status(400).json({ error: "Erreur " });
   }
 });
+
+app.get("/api/books/bestrating", async (req, res)=>{
+  try {
+    console.log(" API /api/books/bestrating appelée !");
+    const bestRatedBooks = await Book.find().sort({ averageRating: -1 }).limit(3);
+
+    return res.status(200).json(bestRatedBooks);
+
+  } catch (error) {
+    console.log(error)
+    res.status(400).json(error);
+  }
+});
+
 
 app.get("/api/books/:id", async (req, res) => {
   try {
@@ -195,7 +209,7 @@ app.get("/api/books/:id", async (req, res) => {
     }
     res.status(200).json(book);
   } catch (error) {
-    res.status(500).json({error:"Erreur du serveur"});
+    res.status(400).json({error:"Erreur du createbook"});
   }
 });
 
@@ -225,7 +239,7 @@ app.put("/api/books/:id",  authMiddleware, upload.single("image"), async (req, r
     
   } catch (error) {
     console.log(error);
-    return res.status(500).json({error:"Erreur du serveur"});
+    return res.status(400).json({error:"Erreur du updatebook"});
   }
 });
 
@@ -243,7 +257,7 @@ app.delete("/api/books/:id", authMiddleware, async (req, res)=>{
     
   } catch (error) {
     console.log(error);
-    return res.status(500).json({error:"Erreur du serveur"});
+    return res.status(400).json({error:"Erreur du deletebook"});
   }
 });
 
@@ -266,22 +280,11 @@ app.post("/api/books/:id/rating", authMiddleware, async (req, res)=>{
 
     book.save();
 
-    res.status(200).json(grade);
+    res.status(200).json(book);
 
   } catch (error) {
-    return res.status(500).json({error:"Erreur du serveur"});
+    return res.status(400).json({error:"Erreur rating"});
   }
 })
 
-app.get("/api/books/bestrating", authMiddleware, async (req, res)=>{
-  try {
-    console.log(" API /api/books/bestrating appelée !");
-    const bestRatedBooks = await Book.find().sort({ averageRating: -1 }).limit(3);
-
-    return res.status(200).json(bestRatedBooks);
-
-  } catch (error) {
-    res.status(500).json({ error: "Erreur serveur" });
-  }
-});
 
