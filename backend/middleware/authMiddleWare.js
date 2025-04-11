@@ -7,7 +7,6 @@ module.exports = (req, res, next) => {
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ error: "Token manquant ou invalide" });
     }
-
     // Extraire le token après "Bearer "
     const token = authHeader.split(" ")[1];
 
@@ -19,4 +18,5 @@ module.exports = (req, res, next) => {
   } catch (error) {
     res.status(401).json({ error: "Requête non authentifiée !" });
   }
+  
 };

@@ -7,13 +7,10 @@ const jwt = require("jsonwebtoken");
 exports.signup = async (req, res) =>{
   try {
         const { email, password } = req.body;
-  
         // Vérifier si l'utilisateur existe déjà
         const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ error: "L'utilisateur existe déjà" });
-        }
-  
+        if (existingUser) { return res.status(400).json({ error: "L'utilisateur existe déjà" });}
+        
         // Hasher le mot de passe avant de l'enregistrer
         const hashedPassword = await bcrypt.hash(password, 10);
   
@@ -41,9 +38,14 @@ exports.login = async (req,res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(400).json({ message: "Email ou mot de passe incorrect" });
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_TOKEN, { expiresIn: "3h" });
+    const token = jwt.sign(
+      { userId: user._id }, 
+      process.env.JWT_SECRET_TOKEN, 
+      { expiresIn: "3h" }
+    );
     res.json({ token, userId: user._id });
     console.log({ token, userId: user._id });
+    
   } catch (error) {
     res.status(400).json({ message: "Erreur du serveur de connexion" });
   }

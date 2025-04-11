@@ -8,14 +8,8 @@ const BookSchema = new mongoose.Schema({
     imageUrl: String,
     year: Number,
     genre: String,
-    ratings: [
-        {
-            userId: String,
-            grade: Number
-        }
-    ],
+    ratings: [ {userId: String, grade: Number} ],
     averageRating: Number
-
 });
 
 module.exports = mongoose.model("Book", BookSchema);

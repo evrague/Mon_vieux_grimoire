@@ -18,7 +18,6 @@ connectDB();
 const authRoutes = require("./routes/authRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 
-
 // Utilisation des API
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);

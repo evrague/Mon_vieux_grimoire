@@ -2,6 +2,7 @@
 const Book = require("../models/Book");
 
 
+
 exports.getAllBooks = async (req, res) => {
   try {
     const books = await Book.find();
@@ -39,6 +40,7 @@ exports.getBookById = async (req, res) =>{
 
 exports.createBook = async (req, res) => {
   try {
+    // Body : les donnees entrees dans le formulaire du Frontend
     const parsedBody = JSON.parse(req.body.book); 
     const title = parsedBody.title;
     const author = parsedBody.author;
@@ -48,20 +50,12 @@ exports.createBook = async (req, res) => {
     const userId = req.auth.userId;
     const host = req.get('host');
 
-    const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
+    const image_name_sans_extension = req.file.filename.split(".")[0];
+    const image_webp = `${image_name_sans_extension}.webp`;
+    const imageUrl = `${req.protocol}://${host}/images/${image_webp}`;
 
     // Création du livre
-    const book = new Book({
-      userId,
-      title,
-      author,
-      imageUrl,
-      year,
-      genre,
-      ratings: [{ userId, grade }],
-      averageRating: grade,
-    });
-
+    const book = new Book({userId,title,author,imageUrl,year,genre,ratings: [{ userId, grade }],averageRating: grade,});
     await book.save();
     res.status(201).json(book);
 
@@ -74,13 +68,14 @@ exports.createBook = async (req, res) => {
 exports.updateBook = async (req, res)=>{
   try {
     const {id} = req.params;
-
     const book = await Book.findById(id);
     console.log(req.body);
     
     if (req.file){
       const host = req.get('host');
-      const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
+      const image_name_sans_extension = req.file.filename.split(".")[0];
+      const image_webp = `${image_name_sans_extension}.webp`;
+      const imageUrl = `${req.protocol}://${host}/images/${image_webp}`;
     }
 
     book.title = req.body.title || book.title;
@@ -88,12 +83,12 @@ exports.updateBook = async (req, res)=>{
     book.year = req.body.year || book.year;
     book.genre = req.body.genre || book.genre;
     book.grade = req.body.grade || book.grade;
+
+    // book.champs = champs modifie ou champs pas modifie
     book.imageUrl = book.imageUrl || imageUrl;
 
     await book.save();
-
     res.status(200).json(book);
-    
   } catch (error) {
     console.log(error);
     res.status(400).json({error:"Erreur du updatebook"});
@@ -102,7 +97,6 @@ exports.updateBook = async (req, res)=>{
 
 exports.deleteBook = async (req, res)=>{
   try {
-
     const {id} = req.params;
     const book = await Book.findById(id);
 
@@ -122,7 +116,6 @@ exports.rateBook = async (req, res)=>{
     const grade = req.body.rating; 
 
     const book = await Book.findById(bookId);
-
     book.ratings.push({userId, grade});
 
     // calcule de moyenne des ratings
@@ -131,7 +124,6 @@ exports.rateBook = async (req, res)=>{
     book.averageRating = sommeRatings / nombreDeRatings ;
 
     book.save();
-
     res.status(200).json(book);
 
   } catch (error) {
